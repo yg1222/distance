@@ -7,13 +7,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 api_key = os.getenv("api_key")
-
-url = f'https://www.mapquestapi.com/directions/v2/routematrix?key={api_key}'
+url = f'https://www.mapquestapi.com/directions/v2/route?key={api_key}'
 
 origin =input("Origin (zip/postal code, address, etc): ")
 destination =input("Destination (zip/postal code, address, etc): ")
-# origin='T3G5N4'
-# destination='T2B3K1'
+# origin='T2H 2N1'
+# destination='T2K 0G2'
 '''
 
 '''
@@ -22,14 +21,25 @@ params = {'key':api_key, }
 body={
     'locations': [
         origin, destination
-    ],
-    'units': 'm'
+    ]
 }
 
 response = requests.post(url, headers=headers, json=body)
-distance = response.json()['distance'][1]
-seconds = response.json()['time'][1]
-origin_obj = response.json()['locations'][0]
-destination_obj = response.json()['locations'][1]
-disp = f"\nThe distance between the {origin_obj['adminArea6']} {origin_obj['adminArea6Type']} in {origin_obj['adminArea5']} {origin_obj['adminArea3']} to the {destination_obj['adminArea6']} {destination_obj['adminArea6Type']} in {destination_obj['adminArea5']} {destination_obj['adminArea3']} is about {distance} kilometers and a drive time of about {math.ceil(seconds/60)} minutes."
-print(disp)
+route = response.json()['route']
+locations = route['locations']
+distance = route['distance']
+time = route['time']
+formattedTime = route['formattedTime']
+origin_obj = locations[0]
+destination_obj = locations[1]
+
+summary = (
+    f"Origin: {origin_obj['adminArea6']} {origin_obj['adminArea6Type']} in {origin_obj['adminArea5']} {origin_obj['adminArea3']}\n"
+    f"Destination: {destination_obj['adminArea6']} {destination_obj['adminArea6Type']} in {destination_obj['adminArea5']} {destination_obj['adminArea3']}\n"
+    f"Distance: {distance}\n" 
+    f"Distance in km: {distance * 1.60934}\n"
+    f"Time in seconds: {time}\n"
+    f"formattedTime: {formattedTime}\n"
+)
+
+print(summary)
